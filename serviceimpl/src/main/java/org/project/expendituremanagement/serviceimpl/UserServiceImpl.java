@@ -14,10 +14,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserServiceImpl implements UserService {
     @Autowired
-    UserInformationRepository userInformationRepository;
+     private UserInformationRepository userInformationRepository;
 
     @Autowired
-    CredentialRepository credentialRepository;
+    private CredentialRepository credentialRepository;
 
     @Override
     public UserInformation registerUser(UserInformationDTO userInformationDTO) {
@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
             UserInformation userInformation = Transformer.transformUserInformationDTOTOUserInformation(userInformationDTO);
 
             Credential credential = new Credential();
-            //credential.setId(userInformation.getUserId());
+
             credential.setUserInformation(userInformation);
             credential.setUserPassword(userInformationDTO.getUserPassword());
 

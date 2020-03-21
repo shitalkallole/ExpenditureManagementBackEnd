@@ -26,7 +26,9 @@ public class PersonalExpenseServiceImpl implements PersonalExpenseService {
     @Override
     public PersonalExpense createEntryInPersonalExpense(PersonalExpenseDTO personalExpenseDTO, String userId) {
         PersonalExpense personalExpense= Transformer.transformPersonalExpenseDTOToPersonalExpense(personalExpenseDTO, userId);
-        return personalExpenseRepository.save(personalExpense);
+        if(personalExpense!=null)
+            return personalExpenseRepository.save(personalExpense);
+        return null;
     }
 
     @Override
@@ -37,25 +39,26 @@ public class PersonalExpenseServiceImpl implements PersonalExpenseService {
         Date startDate=Utilities.convertDateInStringToDate(startDateInString);
         Date endDate=Utilities.convertDateInStringToDate(endDateInString);
 
-        if(startDate==null || endDate==null)
-            return null;
-
-        return personalExpenseRepository.getAllPersonalExpensesBetweenDates(userInformation, Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        if(startDate!=null && endDate!=null)
+            return personalExpenseRepository.getAllPersonalExpensesBetweenDates(userInformation, Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        return null;
     }
 
     @Transactional
     @Override
-    public void deleteAllPersonalExpensesBetweenDates(String startDateInString,String endDateInString,String userId) {
-        UserInformation userInformation=new UserInformation();
+    public boolean deleteAllPersonalExpensesBetweenDates(String startDateInString,String endDateInString,String userId) {
+        UserInformation userInformation = new UserInformation();
         userInformation.setUserId(userId);
 
-        Date startDate=Utilities.convertDateInStringToDate(startDateInString);
-        Date endDate=Utilities.convertDateInStringToDate(endDateInString);
+        Date startDate = Utilities.convertDateInStringToDate(startDateInString);
+        Date endDate = Utilities.convertDateInStringToDate(endDateInString);
 
-        if(startDate!=null && endDate!=null)
-            personalExpenseRepository.deleteAllPersonalExpensesBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        if (startDate != null && endDate != null) {
+            personalExpenseRepository.deleteAllPersonalExpensesBetweenDates(userInformation, Utilities.convertDateToDateWithoutTime(startDate), Utilities.convertDateToDateWithoutTime(endDate));
+            return true;
+        }
+        return false;
     }
-
     @Override
     public PersonalExpense updateEntryInPersonalExpense(PersonalExpenseDTO personalExpenseDTO, UUID transactionId) {
         if(personalExpenseRepository.existsById(transactionId))
@@ -76,9 +79,12 @@ public class PersonalExpenseServiceImpl implements PersonalExpenseService {
     }
 
     @Override
-    public void deleteEntryFromPersonalExpense(UUID transactionId) {
-        if(personalExpenseRepository.existsById(transactionId))
+    public boolean deleteEntryFromPersonalExpense(UUID transactionId) {
+        if(personalExpenseRepository.existsById(transactionId)) {
             personalExpenseRepository.deleteById(transactionId);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -90,10 +96,9 @@ public class PersonalExpenseServiceImpl implements PersonalExpenseService {
         Date startDate=Utilities.convertDateInStringToDate(startDateInString);
         Date endDate=Utilities.convertDateInStringToDate(endDateInString);
 
-        if(startDate==null || endDate==null)
-            return null;
-
-        return personalExpenseRepository.calculatePersonalExpense(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        if(startDate!=null && endDate!=null)
+            return personalExpenseRepository.calculatePersonalExpense(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        return null;
     }
 
 }

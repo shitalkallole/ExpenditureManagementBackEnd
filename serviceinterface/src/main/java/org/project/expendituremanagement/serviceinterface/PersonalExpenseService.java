@@ -10,8 +10,8 @@ import java.util.UUID;
 public interface PersonalExpenseService {
     PersonalExpense createEntryInPersonalExpense(PersonalExpenseDTO personalExpenseDTO,String userId);
     List<PersonalExpense> getAllPersonalExpensesBetweenDates(String startDateInString,String endDateInString,String userId);
-    void deleteAllPersonalExpensesBetweenDates(String startDateInString,String endDateInString,String userId);
+    boolean deleteAllPersonalExpensesBetweenDates(String startDateInString,String endDateInString,String userId);
     PersonalExpense updateEntryInPersonalExpense(PersonalExpenseDTO personalExpenseDTO, UUID transactionId);
-    void deleteEntryFromPersonalExpense(UUID transactionId);
+    boolean deleteEntryFromPersonalExpense(UUID transactionId);
     List<CalculatePersonalExpenseDTO> calculatePersonalExpense(String startDateInString,String endDateInString,String userId);
 }

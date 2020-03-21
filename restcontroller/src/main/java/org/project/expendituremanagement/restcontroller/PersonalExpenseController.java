@@ -2,9 +2,12 @@ package org.project.expendituremanagement.restcontroller;
 
 import org.project.expendituremanagement.dto.CalculatePersonalExpenseDTO;
 import org.project.expendituremanagement.dto.PersonalExpenseDTO;
+import org.project.expendituremanagement.dto.StatusResponse;
 import org.project.expendituremanagement.entity.PersonalExpense;
 import org.project.expendituremanagement.serviceinterface.PersonalExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,45 +20,72 @@ public class PersonalExpenseController {
 
     @Autowired
     private PersonalExpenseService personalExpenseService;
+    private String errorText="something wrong went";
+
     @RequestMapping(value="/{userId}",method = RequestMethod.POST)
-    public PersonalExpense createEntryInPersonalExpense(@RequestBody PersonalExpenseDTO personalExpenseDTO,
+    public ResponseEntity<Object> createEntryInPersonalExpense(@RequestBody PersonalExpenseDTO personalExpenseDTO,
                                                         @PathVariable(name="userId") String userId){
-        return personalExpenseService.createEntryInPersonalExpense(personalExpenseDTO, userId);
+        PersonalExpense response=personalExpenseService.createEntryInPersonalExpense(personalExpenseDTO, userId);
+        if(response!=null) {
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("Successfully Created");
+            return new ResponseEntity<>(statusResponse, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/show/{startDate}/{endDate}/{userId}",method = RequestMethod.GET)
-    public List<PersonalExpense> getAllPersonalExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> getAllPersonalExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
                                                                     @PathVariable(name="endDate") String endDateInString,
                                                                     @PathVariable(name="userId") String userID){
-        return personalExpenseService.getAllPersonalExpensesBetweenDates(startDateInString,endDateInString,userID);
+        List<PersonalExpense> response=personalExpenseService.getAllPersonalExpensesBetweenDates(startDateInString,endDateInString,userID);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/delete/{startDate}/{endDate}/{userId}",method = RequestMethod.DELETE)
-    public void deleteAllPersonalExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> deleteAllPersonalExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
                                                       @PathVariable(name="endDate") String endDateInString,
                                                       @PathVariable(name="userId") String userID){
-        personalExpenseService.deleteAllPersonalExpensesBetweenDates(startDateInString,endDateInString, userID);
+        if(personalExpenseService.deleteAllPersonalExpensesBetweenDates(startDateInString,endDateInString, userID)){
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("All records between dates deleted successfully");
+
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{transactionId}",method = RequestMethod.PUT)
-    public PersonalExpense updateEntryInPersonalExpense(@RequestBody PersonalExpenseDTO personalExpenseDTO,
+    public ResponseEntity<Object> updateEntryInPersonalExpense(@RequestBody PersonalExpenseDTO personalExpenseDTO,
                                                         @PathVariable(name="transactionId")UUID transactionId)
     {
-        return personalExpenseService.updateEntryInPersonalExpense(personalExpenseDTO, transactionId);
+        PersonalExpense response=personalExpenseService.updateEntryInPersonalExpense(personalExpenseDTO, transactionId);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{transactionId}",method = RequestMethod.DELETE)
-    public void deleteEntryFromPersonalExpense(@PathVariable(name="transactionId")UUID transactionId){
-        personalExpenseService.deleteEntryFromPersonalExpense(transactionId);
+    public ResponseEntity<Object> deleteEntryFromPersonalExpense(@PathVariable(name="transactionId")UUID transactionId){
+        if(personalExpenseService.deleteEntryFromPersonalExpense(transactionId)) {
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("successfully deleted");
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/calculate/{startDate}/{endDate}/{userId}",method = RequestMethod.GET)
-    public List<CalculatePersonalExpenseDTO> calculatePersonalExpense(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> calculatePersonalExpense(@PathVariable(name="startDate") String startDateInString,
                                                                       @PathVariable(name="endDate") String endDateInString,
                                                                       @PathVariable(name="userId") String userID)
     {
 
-        return personalExpenseService.calculatePersonalExpense(startDateInString, endDateInString, userID);
-
+        List<CalculatePersonalExpenseDTO> response= personalExpenseService.calculatePersonalExpense(startDateInString, endDateInString, userID);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 }
