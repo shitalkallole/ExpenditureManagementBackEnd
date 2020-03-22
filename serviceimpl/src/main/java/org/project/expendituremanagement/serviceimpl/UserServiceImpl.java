@@ -50,8 +50,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void deleteUser(String userId) {
-        userInformationRepository.deleteById(userId);
+    public boolean deleteUser(String userId) {
+        if(userInformationRepository.existsById(userId)) {
+            userInformationRepository.deleteById(userId);
+            return true;
+        }
+        return false;
     }
 
     private boolean validateUserCredential(CredentialDTO credentialDTO) {

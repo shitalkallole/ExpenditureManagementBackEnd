@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 public interface UserService {
     UserInformation registerUser(UserInformationDTO userInformationDTO);
     UserInformation updateUser(UserInformationDTO userInformationDTO,String userId);
-    void deleteUser(String userId);
+    boolean deleteUser(String userId);
 
     UserInformation validateUser(CredentialDTO credentialDTO);
     Boolean updatePassword(CredentialDTO credentialDTO);

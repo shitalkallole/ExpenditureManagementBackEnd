@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private UserService userService;
-    private String error="Something went wrong";
+    private String errorText="Something went wrong";
+    private String userAlreadyExist="User Already exist";
+    private String checkCurrentPassword="Check current password";
 
     @RequestMapping(value = "/register",method = RequestMethod.POST)
     public ResponseEntity<Object> registerUser(@RequestBody UserInformationDTO userInformationDTO){
@@ -25,9 +27,10 @@ public class UserController {
         if(userInformation!=null) {
             StatusResponse statusResponse=new StatusResponse();
             statusResponse.setSuccessMessage("Registered Successfully. "+userInformation.getUserId()+" is your User Id");
+
             return new ResponseEntity<>(statusResponse, HttpStatus.OK);
         }
-        return new ResponseEntity<>("User Already exist", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(userAlreadyExist, HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{userId}",method = RequestMethod.PUT)
@@ -35,12 +38,18 @@ public class UserController {
         UserInformation userInformation=userService.updateUser(userInformationDTO, userId);
         if(userInformation!=null)
             return new ResponseEntity<>(userInformation,HttpStatus.OK);
-        return new ResponseEntity<>(error,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{userId}",method = RequestMethod.DELETE)
-    public void deleteUser(@PathVariable(name="userId") String userId){
-        userService.deleteUser(userId);
+    public ResponseEntity<Object> deleteUser(@PathVariable(name="userId") String userId){
+        if(userService.deleteUser(userId)){
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("User Deleted Successfully");
+
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/validate",method = RequestMethod.POST)
@@ -57,9 +66,10 @@ public class UserController {
         {
             StatusResponse statusResponse=new StatusResponse();
             statusResponse.setSuccessMessage("updated Password successfully");
+
             return new ResponseEntity<>(statusResponse,HttpStatus.OK);
         }
-        return new ResponseEntity<>("Check the current password",HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(checkCurrentPassword,HttpStatus.BAD_REQUEST);
     }
 
 }
