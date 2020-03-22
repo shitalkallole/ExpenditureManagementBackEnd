@@ -10,5 +10,5 @@ public interface FriendService {
     Friend createFriend(FriendDTO friendDTO, String userId);
     List<Friend> getFriends(String userId);
     Friend updateFriend(FriendDTO friendDTO,UUID friendId);
-    void deleteFriend(UUID friendId);
+    boolean deleteFriend(UUID friendId);
 }

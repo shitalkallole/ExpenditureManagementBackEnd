@@ -1,12 +1,11 @@
 package org.project.expendituremanagement.restcontroller;
 
-import org.project.expendituremanagement.dto.CalculateLendExpenseForCategoryDTO;
-import org.project.expendituremanagement.dto.FinalResultOfLendBorrowExpenseForFriendDTO;
-import org.project.expendituremanagement.dto.FinalResultOfLendExpenseForCategoryDTO;
-import org.project.expendituremanagement.dto.LendBorrowExpenseDTO;
+import org.project.expendituremanagement.dto.*;
 import org.project.expendituremanagement.entity.LendBorrowExpense;
 import org.project.expendituremanagement.serviceinterface.LendBorrowExpenseService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
@@ -21,77 +20,121 @@ public class LendBorrowExpenseController {
 
     @Autowired
     private LendBorrowExpenseService lendBorrowExpenseService;
+    private String errorText="something wrong went";
+
     @RequestMapping(value="/{userId}",method = RequestMethod.POST)
-    public LendBorrowExpense createEntryInLendBorrowExpense(@RequestBody LendBorrowExpenseDTO lendBorrowExpenseDTO,
+    public ResponseEntity<Object> createEntryInLendBorrowExpense(@RequestBody LendBorrowExpenseDTO lendBorrowExpenseDTO,
                                                             @PathVariable(name = "userId") String userId)
     {
-        return lendBorrowExpenseService.createEntryInLendBorrowExpense(lendBorrowExpenseDTO,userId);
+        LendBorrowExpense response = lendBorrowExpenseService.createEntryInLendBorrowExpense(lendBorrowExpenseDTO,userId);
+        if(response!=null)
+        {
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("Successfully Created");
+
+            return new ResponseEntity<>(statusResponse, HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/show/{startDate}/{endDate}/{userId}",method = RequestMethod.GET)
-    public List<LendBorrowExpense> getAllLendBorrowExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> getAllLendBorrowExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
                                                                         @PathVariable(name="endDate") String endDateInString,
                                                                         @PathVariable(name="userId") String userID){
-       return lendBorrowExpenseService.getAllLendBorrowExpensesBetweenDates(startDateInString, endDateInString, userID);
+        List<LendBorrowExpense> response=lendBorrowExpenseService.getAllLendBorrowExpensesBetweenDates(startDateInString, endDateInString, userID);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/delete/{startDate}/{endDate}/{userId}",method = RequestMethod.DELETE)
-    public void deleteAllLendBorrowExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> deleteAllLendBorrowExpensesBetweenDates(@PathVariable(name="startDate") String startDateInString,
                                                         @PathVariable(name="endDate") String endDateInString,
                                                         @PathVariable(name="userId") String userID){
-        lendBorrowExpenseService.deleteAllLendBorrowExpensesBetweenDates(startDateInString, endDateInString, userID);
+        if(lendBorrowExpenseService.deleteAllLendBorrowExpensesBetweenDates(startDateInString, endDateInString, userID)){
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("All records between dates deleted successfully");
+
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{transactionId}",method = RequestMethod.PUT)
-    public LendBorrowExpense updateEntryInLendBorrowExpense(@RequestBody LendBorrowExpenseDTO lendBorrowExpenseDTO,
+    public ResponseEntity<Object> updateEntryInLendBorrowExpense(@RequestBody LendBorrowExpenseDTO lendBorrowExpenseDTO,
                                                             @PathVariable(name="transactionId") UUID transactionId){
-        return lendBorrowExpenseService.updateEntryInLendBorrowExpense(lendBorrowExpenseDTO, transactionId);
+        LendBorrowExpense response=lendBorrowExpenseService.updateEntryInLendBorrowExpense(lendBorrowExpenseDTO, transactionId);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{transactionId}",method = RequestMethod.DELETE)
-    public void deleteEntryFromLendBorrowExpense(@PathVariable(name="transactionId") UUID transactionId){
-        lendBorrowExpenseService.deleteEntryFromLendBorrowExpense(transactionId);
+    public ResponseEntity<Object> deleteEntryFromLendBorrowExpense(@PathVariable(name="transactionId") UUID transactionId){
+        if(lendBorrowExpenseService.deleteEntryFromLendBorrowExpense(transactionId)){
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("Deleted successfully");
+
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/show/{startDate}/{endDate}/{friendId}/{userId}",method = RequestMethod.GET)
-    public List<LendBorrowExpense> getAllLendBorrowExpensesOfFriendBetweenDates(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> getAllLendBorrowExpensesOfFriendBetweenDates(@PathVariable(name="startDate") String startDateInString,
                                                                                 @PathVariable(name="endDate") String endDateInString,
                                                                                 @PathVariable(name="friendId") UUID friendId,
                                                                                 @PathVariable(name="userId") String userID){
-        return lendBorrowExpenseService.getAllLendBorrowExpensesOfFriendBetweenDates(startDateInString, endDateInString, friendId, userID);
+        List<LendBorrowExpense> response=lendBorrowExpenseService.getAllLendBorrowExpensesOfFriendBetweenDates(startDateInString, endDateInString, friendId, userID);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/delete/{startDate}/{endDate}/{friendId}/{userId}",method = RequestMethod.DELETE)
-    public void deleteAllLendBorrowExpensesOfFriendBetweenDates(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> deleteAllLendBorrowExpensesOfFriendBetweenDates(@PathVariable(name="startDate") String startDateInString,
                                                                 @PathVariable(name="endDate") String endDateInString,
                                                                 @PathVariable(name="friendId") UUID friendId,
                                                                 @PathVariable(name="userId") String userID){
-        lendBorrowExpenseService.deleteAllLendBorrowExpensesOfFriendBetweenDates(startDateInString, endDateInString, friendId, userID);
+
+        if(lendBorrowExpenseService.deleteAllLendBorrowExpensesOfFriendBetweenDates(startDateInString, endDateInString, friendId, userID)){
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("All records between dates of your friend deleted successfully");
+
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/calculate/all/{startDate}/{endDate}/{userId}",method = RequestMethod.GET)
-    public List<FinalResultOfLendBorrowExpenseForFriendDTO> calculateLendBorrowExpenseForEachFriend(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> calculateLendBorrowExpenseForEachFriend(@PathVariable(name="startDate") String startDateInString,
                                                                                                     @PathVariable(name="endDate") String endDateInString,
                                                                                                     @PathVariable(name="userId") String userID){
 
-        return lendBorrowExpenseService.calculateLendBorrowExpenseForEachFriend(startDateInString, endDateInString, userID);
+        List<FinalResultOfLendBorrowExpenseForFriendDTO> response=lendBorrowExpenseService.calculateLendBorrowExpenseForEachFriend(startDateInString, endDateInString, userID);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/calculate/{startDate}/{endDate}/{friendId}",method = RequestMethod.GET)
-    public FinalResultOfLendBorrowExpenseForFriendDTO calculateLendBorrowExpenseForSingleFriend(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> calculateLendBorrowExpenseForSingleFriend(@PathVariable(name="startDate") String startDateInString,
                                                                                                 @PathVariable(name="endDate") String endDateInString,
                                                                                                 @PathVariable(name="friendId") UUID friendId){
-        return lendBorrowExpenseService.calculateLendBorrowExpenseForSingleFriend(startDateInString, endDateInString, friendId);
-
+        FinalResultOfLendBorrowExpenseForFriendDTO response=lendBorrowExpenseService.calculateLendBorrowExpenseForSingleFriend(startDateInString, endDateInString, friendId);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/calculate/category/{startDate}/{endDate}/{categoryId}/{userId}",method = RequestMethod.GET)
-    public List<FinalResultOfLendExpenseForCategoryDTO> calculateLendExpenseForCategory(@PathVariable(name="startDate") String startDateInString,
+    public ResponseEntity<Object> calculateLendExpenseForCategory(@PathVariable(name="startDate") String startDateInString,
                                                                                              @PathVariable(name="endDate") String endDateInString,
                                                                                              @PathVariable(name="categoryId") UUID categoryId,
                                                                                              @PathVariable(name="userId") String userID){
-        return lendBorrowExpenseService.calculateLendExpenseForCategory(startDateInString, endDateInString, categoryId,userID);
+        List<FinalResultOfLendExpenseForCategoryDTO> response=lendBorrowExpenseService.calculateLendExpenseForCategory(startDateInString, endDateInString, categoryId,userID);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
-
-
 }

@@ -48,9 +48,12 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    public void deleteCategory(UUID categoryId)
+    public boolean deleteCategory(UUID categoryId)
     {
-        if(categoryRepository.existsById(categoryId))
+        if(categoryRepository.existsById(categoryId)) {
             categoryRepository.deleteById(categoryId);
+            return true;
+        }
+        return false;
     }
 }

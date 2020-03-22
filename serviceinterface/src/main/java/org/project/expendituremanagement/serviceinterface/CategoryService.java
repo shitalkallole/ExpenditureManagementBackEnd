@@ -10,5 +10,5 @@ public interface CategoryService {
     Category createCategory(CategoryDTO categoryDTO,String userId);
     List<Category> getCategories(String userId);
     Category updateCategory(CategoryDTO categoryDTO,UUID categoryId);
-    void deleteCategory(UUID categoryId);
+    boolean deleteCategory(UUID categoryId);
 }

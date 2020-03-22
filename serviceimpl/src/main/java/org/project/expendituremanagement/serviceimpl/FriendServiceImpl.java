@@ -14,7 +14,7 @@ import java.util.UUID;
 @Service
 public class FriendServiceImpl implements FriendService {
     @Autowired
-    FriendRepository friendRepository;
+    private FriendRepository friendRepository;
 
     @Override
     public Friend createFriend(FriendDTO friendDTO, String userId) {
@@ -46,8 +46,11 @@ public class FriendServiceImpl implements FriendService {
     }
 
     @Override
-    public void deleteFriend(UUID friendId){
-        if(friendRepository.existsById(friendId))
+    public boolean deleteFriend(UUID friendId){
+        if(friendRepository.existsById(friendId)) {
             friendRepository.deleteById(friendId);
+            return true;
+        }
+        return false;
     }
 }

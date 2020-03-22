@@ -1,9 +1,12 @@
 package org.project.expendituremanagement.restcontroller;
 
 import org.project.expendituremanagement.dto.FriendDTO;
+import org.project.expendituremanagement.dto.StatusResponse;
 import org.project.expendituremanagement.entity.Friend;
 import org.project.expendituremanagement.serviceinterface.FriendService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,27 +19,43 @@ public class FriendController {
 
     @Autowired
     private FriendService friendService;
+    private String errorText="something wrong went";
 
     @RequestMapping(value ="/{userId}",method = RequestMethod.POST)
-    public Friend createFriend(@RequestBody FriendDTO friendDTO,
+    public ResponseEntity<Object> createFriend(@RequestBody FriendDTO friendDTO,
                                @PathVariable(name = "userId") String userId)
     {
-        return friendService.createFriend(friendDTO,userId);
+        Friend response=friendService.createFriend(friendDTO,userId);
+        if(response!=null)
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{userId}",method = RequestMethod.GET)
-    public List<Friend> getFriends(@PathVariable(name = "userId") String userId){
-        return friendService.getFriends(userId);
+    public ResponseEntity<Object> getFriends(@PathVariable(name = "userId") String userId){
+        List<Friend> response=friendService.getFriends(userId);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value = "/{friendId}",method = RequestMethod.PUT)
-    public Friend updateFriend(@RequestBody FriendDTO friendDTO,
+    public ResponseEntity<Object> updateFriend(@RequestBody FriendDTO friendDTO,
                                @PathVariable(name="friendId")UUID friendId){
-        return friendService.updateFriend(friendDTO, friendId);
+        Friend response=friendService.updateFriend(friendDTO, friendId);
+        if(response!=null)
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 
     @RequestMapping(value="/{friendId}",method = RequestMethod.DELETE)
-    public void deleteFriend(@PathVariable(name="friendId")UUID friendId){
-        friendService.deleteFriend(friendId);
+    public ResponseEntity<Object> deleteFriend(@PathVariable(name="friendId")UUID friendId){
+        if(friendService.deleteFriend(friendId)){
+            StatusResponse statusResponse=new StatusResponse();
+            statusResponse.setSuccessMessage("Deleted successfully");
+
+            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+        }
+        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
     }
 }

@@ -27,7 +27,9 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
     @Override
     public LendBorrowExpense createEntryInLendBorrowExpense(LendBorrowExpenseDTO lendBorrowExpenseDTO,String userId) {
         LendBorrowExpense lendBorrowExpense= Transformer.transformLendBorrowExpenseDTOToLendBorrowExpense(lendBorrowExpenseDTO,userId);
-        return lendBorrowExpenseRepository.save(lendBorrowExpense);
+        if(lendBorrowExpense!=null)
+            return lendBorrowExpenseRepository.save(lendBorrowExpense);
+        return null;
     }
 
     @Override
@@ -38,24 +40,25 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
         Date startDate= Utilities.convertDateInStringToDate(startDateInString);
         Date endDate=Utilities.convertDateInStringToDate(endDateInString);
 
-        if(startDate==null || endDate==null)
-            return null;
-
-        return lendBorrowExpenseRepository.getAllLendBorrowExpensesBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        if(startDate!=null && endDate!=null)
+            return lendBorrowExpenseRepository.getAllLendBorrowExpensesBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
+        return null;
     }
 
     @Transactional
     @Override
-    public void deleteAllLendBorrowExpensesBetweenDates(String startDateInString, String endDateInString, String userId) {
+    public boolean deleteAllLendBorrowExpensesBetweenDates(String startDateInString, String endDateInString, String userId) {
         UserInformation userInformation=new UserInformation();
         userInformation.setUserId(userId);
 
         Date startDate=Utilities.convertDateInStringToDate(startDateInString);
         Date endDate=Utilities.convertDateInStringToDate(endDateInString);
 
-        if(startDate!=null && endDate!=null)
-            lendBorrowExpenseRepository.deleteAllLendBorrowExpensesBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate));
-
+        if(startDate!=null && endDate!=null) {
+            lendBorrowExpenseRepository.deleteAllLendBorrowExpensesBetweenDates(userInformation, Utilities.convertDateToDateWithoutTime(startDate), Utilities.convertDateToDateWithoutTime(endDate));
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -84,9 +87,12 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
     }
 
     @Override
-    public void deleteEntryFromLendBorrowExpense(UUID transactionId) {
-        if(lendBorrowExpenseRepository.existsById(transactionId))
+    public boolean deleteEntryFromLendBorrowExpense(UUID transactionId) {
+        if(lendBorrowExpenseRepository.existsById(transactionId)) {
             lendBorrowExpenseRepository.deleteById(transactionId);
+            return true;
+        }
+        return false;
     }
 
     @Override
@@ -97,18 +103,19 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
         Date startDate= Utilities.convertDateInStringToDate(startDateInString);
         Date endDate=Utilities.convertDateInStringToDate(endDateInString);
 
-        if(startDate==null || endDate==null)
-            return null;
+        if(startDate!=null && endDate!=null){
 
-        Friend friend=new Friend();
-        friend.setFriendId(friendId);
+            Friend friend=new Friend();
+            friend.setFriendId(friendId);
 
-        return lendBorrowExpenseRepository.getAllLendBorrowExpensesOfFriendBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate),friend);
+            return lendBorrowExpenseRepository.getAllLendBorrowExpensesOfFriendBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate),friend);
+        }
+        return null;
     }
 
     @Transactional
     @Override
-    public void deleteAllLendBorrowExpensesOfFriendBetweenDates(String startDateInString, String endDateInString, UUID friendId, String userId) {
+    public boolean deleteAllLendBorrowExpensesOfFriendBetweenDates(String startDateInString, String endDateInString, UUID friendId, String userId) {
         UserInformation userInformation=new UserInformation();
         userInformation.setUserId(userId);
 
@@ -116,11 +123,14 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
         Date endDate=Utilities.convertDateInStringToDate(endDateInString);
 
         if(startDate!=null && endDate!=null) {
+
             Friend friend = new Friend();
             friend.setFriendId(friendId);
 
             lendBorrowExpenseRepository.deleteAllLendBorrowExpensesOfFriendBetweenDates(userInformation,Utilities.convertDateToDateWithoutTime(startDate),Utilities.convertDateToDateWithoutTime(endDate),friend);
+            return true;
         }
+        return false;
     }
 
 

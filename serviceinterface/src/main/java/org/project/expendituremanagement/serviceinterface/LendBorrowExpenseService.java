@@ -14,12 +14,12 @@ import java.util.UUID;
 public interface LendBorrowExpenseService {
     LendBorrowExpense createEntryInLendBorrowExpense(LendBorrowExpenseDTO lendBorrowExpenseDTO,String userId);
     List<LendBorrowExpense> getAllLendBorrowExpensesBetweenDates(String startDateInString,String endDateInString,String userId);
-    void deleteAllLendBorrowExpensesBetweenDates(String startDateInString,String endDateInString,String userId);
+    boolean deleteAllLendBorrowExpensesBetweenDates(String startDateInString,String endDateInString,String userId);
     LendBorrowExpense updateEntryInLendBorrowExpense(LendBorrowExpenseDTO lendBorrowExpenseDTO, UUID transactionId);
-    void deleteEntryFromLendBorrowExpense(UUID transactionId);
+    boolean deleteEntryFromLendBorrowExpense(UUID transactionId);
 
     List<LendBorrowExpense> getAllLendBorrowExpensesOfFriendBetweenDates(String startDateInString,String endDateInString,UUID friendId,String userId);
-    void deleteAllLendBorrowExpensesOfFriendBetweenDates(String startDateInString,String endDateInString,UUID friendId,String userId);
+    boolean deleteAllLendBorrowExpensesOfFriendBetweenDates(String startDateInString,String endDateInString,UUID friendId,String userId);
 
     List<FinalResultOfLendBorrowExpenseForFriendDTO> calculateLendBorrowExpenseForEachFriend(String startDateInString, String endDateInString, String userId);
     FinalResultOfLendBorrowExpenseForFriendDTO calculateLendBorrowExpenseForSingleFriend(String startDateInString, String endDateInString, UUID friendId);
