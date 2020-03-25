@@ -4,11 +4,15 @@ import org.project.expendituremanagement.dto.CredentialDTO;
 import org.project.expendituremanagement.dto.StatusResponse;
 import org.project.expendituremanagement.dto.UserInformationDTO;
 import org.project.expendituremanagement.entity.UserInformation;
+import org.project.expendituremanagement.serviceinterface.HttpSessionService;
 import org.project.expendituremanagement.serviceinterface.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -16,6 +20,9 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private HttpSessionService httpSessionService;
+
     private String errorText="Something went wrong";
     private String userAlreadyExist="User Already exist";
     private String checkCurrentPassword="Check current password";
@@ -55,8 +62,15 @@ public class UserController {
     @RequestMapping(value="/validate",method = RequestMethod.POST)
     public ResponseEntity<Object> validateUser(@RequestBody CredentialDTO credentialDTO){
         UserInformation userInformation = userService.validateUser(credentialDTO);
-        if(userInformation!=null)
-            return new ResponseEntity<>(userInformation,HttpStatus.OK);
+        if(userInformation!=null) {
+            UUID sessionId=httpSessionService.createHttpSession(credentialDTO.getUserId());
+
+            HttpHeaders responseHeaders=new HttpHeaders();
+            responseHeaders.add("sessionId",sessionId.toString());
+            responseHeaders.add("Access-Control-Expose-Headers","sessionId");
+
+            return new ResponseEntity<>(userInformation,responseHeaders,HttpStatus.OK);
+        }
         return new ResponseEntity<>("Check user id and password and try again later",HttpStatus.BAD_REQUEST);
     }
 
