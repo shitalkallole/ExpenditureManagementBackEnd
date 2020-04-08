@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/friend")
 public class FriendController {
@@ -42,6 +41,7 @@ public class FriendController {
     @RequestMapping(value = "/{friendId}",method = RequestMethod.PUT)
     public ResponseEntity<Object> updateFriend(@RequestBody FriendDTO friendDTO,
                                @PathVariable(name="friendId")UUID friendId){
+        System.out.println("User:"+friendService.getUserIdByFriendId(friendId));
         Friend response=friendService.updateFriend(friendDTO, friendId);
         if(response!=null)
             return new ResponseEntity<>(response,HttpStatus.OK);

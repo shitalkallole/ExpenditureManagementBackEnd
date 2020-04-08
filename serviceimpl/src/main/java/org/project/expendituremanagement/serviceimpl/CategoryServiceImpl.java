@@ -56,4 +56,11 @@ public class CategoryServiceImpl implements CategoryService {
         }
         return false;
     }
+
+    @Override
+    public String getUserIdByCategoryId(UUID categoryId) {
+        if(categoryRepository.existsById(categoryId))
+            return categoryRepository.getOne(categoryId).getUserInformation().getUserId();
+        return null;
+    }
 }

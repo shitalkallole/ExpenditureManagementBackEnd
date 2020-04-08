@@ -53,4 +53,11 @@ public class FriendServiceImpl implements FriendService {
         }
         return false;
     }
+
+    @Override
+    public String getUserIdByFriendId(UUID friendId) {
+        if(friendRepository.existsById(friendId))
+            return friendRepository.getOne(friendId).getUserInformation().getUserId();
+        return null;
+    }
 }

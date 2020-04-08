@@ -101,4 +101,11 @@ public class PersonalExpenseServiceImpl implements PersonalExpenseService {
         return null;
     }
 
+    @Override
+    public String getUserByTransactionId(UUID transactionId) {
+        if(personalExpenseRepository.existsById(transactionId))
+            return personalExpenseRepository.getOne(transactionId).getUserInformation().getUserId();
+        return null;
+    }
+
 }

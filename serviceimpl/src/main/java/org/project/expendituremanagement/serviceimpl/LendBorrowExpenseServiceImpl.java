@@ -287,4 +287,11 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
         });
         return finalResult;
     }
+
+    @Override
+    public String getUserIdBy(UUID transactionId) {
+        if(lendBorrowExpenseRepository.existsById(transactionId))
+            return lendBorrowExpenseRepository.getOne(transactionId).getUserInformation().getUserId();
+        return null;
+    }
 }

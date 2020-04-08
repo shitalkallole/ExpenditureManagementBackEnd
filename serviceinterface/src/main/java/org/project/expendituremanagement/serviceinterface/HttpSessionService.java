@@ -9,5 +9,5 @@ public interface HttpSessionService {
     UUID createHttpSession(String userId);
     ValidateSessionResponse validateSession(HttpSession httpSession);
     boolean updateHttpSession(String userId);
-    boolean deleteHttpSession(HttpSession httpSession);
+    boolean deleteHttpSession(String userId);
 }

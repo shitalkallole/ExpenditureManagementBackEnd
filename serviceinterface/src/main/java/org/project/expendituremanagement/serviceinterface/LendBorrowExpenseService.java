@@ -25,4 +25,6 @@ public interface LendBorrowExpenseService {
     FinalResultOfLendBorrowExpenseForFriendDTO calculateLendBorrowExpenseForSingleFriend(String startDateInString, String endDateInString, UUID friendId);
 
     List<FinalResultOfLendExpenseForCategoryDTO> calculateLendExpenseForCategory(String startDateInString, String endDateInString, UUID categoryId, String userId);
+
+    String getUserIdBy(UUID transactionId);
 }

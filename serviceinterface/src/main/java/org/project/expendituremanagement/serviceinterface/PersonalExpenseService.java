@@ -14,4 +14,6 @@ public interface PersonalExpenseService {
     PersonalExpense updateEntryInPersonalExpense(PersonalExpenseDTO personalExpenseDTO, UUID transactionId);
     boolean deleteEntryFromPersonalExpense(UUID transactionId);
     List<CalculatePersonalExpenseDTO> calculatePersonalExpense(String startDateInString,String endDateInString,String userId);
+
+    String getUserByTransactionId(UUID transactionId);
 }

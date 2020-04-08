@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -61,6 +60,7 @@ public class UserController {
 
     @RequestMapping(value="/validate",method = RequestMethod.POST)
     public ResponseEntity<Object> validateUser(@RequestBody CredentialDTO credentialDTO){
+        System.out.println("validate user called");
         UserInformation userInformation = userService.validateUser(credentialDTO);
         if(userInformation!=null) {
             UUID sessionId=httpSessionService.createHttpSession(credentialDTO.getUserId());

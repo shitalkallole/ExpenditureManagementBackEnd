@@ -11,4 +11,6 @@ public interface FriendService {
     List<Friend> getFriends(String userId);
     Friend updateFriend(FriendDTO friendDTO,UUID friendId);
     boolean deleteFriend(UUID friendId);
+
+    String getUserIdByFriendId(UUID friendId);
 }

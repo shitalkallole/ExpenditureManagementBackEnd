@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.UUID;
 
-@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/category")
 public class CategoryController {
@@ -42,6 +41,7 @@ public class CategoryController {
     @RequestMapping(value = "/{categoryId}",method = RequestMethod.PUT)
     public ResponseEntity<Object> updateCategory(@RequestBody CategoryDTO categoryDTO,
                                    @PathVariable(name="categoryId") UUID categoryId){
+        System.out.println("user:"+categoryService.getUserIdByCategoryId(categoryId));
         Category response=categoryService.updateCategory(categoryDTO, categoryId);
         if(response!=null)
             return new ResponseEntity<>(response,HttpStatus.OK);

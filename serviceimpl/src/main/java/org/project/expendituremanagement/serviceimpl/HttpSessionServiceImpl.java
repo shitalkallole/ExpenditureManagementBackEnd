@@ -35,11 +35,11 @@ public class HttpSessionServiceImpl implements HttpSessionService {
 
     @Override
     public ValidateSessionResponse validateSession(HttpSession httpSession) {
-        System.out.println("request :"+httpSession);
+        //System.out.println("request :"+httpSession);
         ValidateSessionResponse validateSessionResponse=new ValidateSessionResponse();
 
         HttpSession redisResponse=getHttpSession(httpSession.getUserId());
-        System.out.println("redis:"+redisResponse);
+        //System.out.println("redis:"+redisResponse);
         if(redisResponse!=null){
             //session for user is present
             if(httpSession.getSessionId().toString().equals(redisResponse.getSessionId().toString())){
@@ -63,7 +63,7 @@ public class HttpSessionServiceImpl implements HttpSessionService {
             validateSessionResponse.setMessage("Please Sign In first");
         }
 
-        System.out.println("response :"+validateSessionResponse);
+        //System.out.println("response :"+validateSessionResponse);
         return validateSessionResponse;
     }
     private HttpSession getHttpSession(String userId) {
@@ -84,11 +84,11 @@ public class HttpSessionServiceImpl implements HttpSessionService {
     }
 
     @Override
-    public boolean deleteHttpSession(HttpSession httpSession) {
-        if(validateSession(httpSession).getSessionActiveOrNot()) {
-            hashOperations.delete(REDIS_INDEX, httpSession.getUserId());
+    public boolean deleteHttpSession(String userId) {
+        //if(validateSession(httpSession).getSessionActiveOrNot()) {
+            hashOperations.delete(REDIS_INDEX,userId);
             return true;
-        }
-        return false;
+        //}
+        //return false;
     }
 }
