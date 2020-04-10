@@ -75,6 +75,13 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public UserInformation getUserById(String userId){
+        if(userInformationRepository.existsById(userId))
+            return userInformationRepository.getOne(userId);
+        return null;
+    }
+
+    @Override
     public Boolean updatePassword(CredentialDTO credentialDTO) {
         if(validateUserCredential(credentialDTO))
         {

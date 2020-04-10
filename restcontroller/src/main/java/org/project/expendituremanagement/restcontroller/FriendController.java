@@ -1,5 +1,8 @@
 package org.project.expendituremanagement.restcontroller;
 
+import org.project.expendituremanagement.constants.API;
+import org.project.expendituremanagement.constants.ErrorText;
+import org.project.expendituremanagement.constants.SuccessText;
 import org.project.expendituremanagement.dto.FriendDTO;
 import org.project.expendituremanagement.dto.StatusResponse;
 import org.project.expendituremanagement.entity.Friend;
@@ -13,49 +16,57 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/friend")
+@RequestMapping(API.FRIEND_PATH)
 public class FriendController {
 
     @Autowired
     private FriendService friendService;
-    private String errorText="something wrong went";
 
-    @RequestMapping(value ="/{userId}",method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Object> createFriend(@RequestBody FriendDTO friendDTO,
-                               @PathVariable(name = "userId") String userId)
+                                               @RequestHeader(name = "userId") String userId)
     {
         Friend response=friendService.createFriend(friendDTO,userId);
         if(response!=null)
             return new ResponseEntity<>(response, HttpStatus.OK);
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.somethingWentWrongText,HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/{userId}",method = RequestMethod.GET)
-    public ResponseEntity<Object> getFriends(@PathVariable(name = "userId") String userId){
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<Object> getFriends(@RequestHeader(name = "userId") String userId){
         List<Friend> response=friendService.getFriends(userId);
         if(response!=null)
             return new ResponseEntity<>(response,HttpStatus.OK);
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.somethingWentWrongText,HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/{friendId}",method = RequestMethod.PUT)
+    @RequestMapping(value = API.FRIEND_ID_PARAM_PATH,method = RequestMethod.PUT)
     public ResponseEntity<Object> updateFriend(@RequestBody FriendDTO friendDTO,
-                               @PathVariable(name="friendId")UUID friendId){
-        System.out.println("User:"+friendService.getUserIdByFriendId(friendId));
-        Friend response=friendService.updateFriend(friendDTO, friendId);
-        if(response!=null)
-            return new ResponseEntity<>(response,HttpStatus.OK);
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+                                               @PathVariable(name="friendId")UUID friendId,
+                                               @RequestHeader(name = "userId") String userId){
+        String ownerId=friendService.getUserIdByFriendId(friendId);
+        if(userId.equals(ownerId)) {
+            Friend response = friendService.updateFriend(friendDTO, friendId);
+            if (response != null)
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(ErrorText.somethingWentWrongText, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(ErrorText.unauthorizedText,HttpStatus.UNAUTHORIZED);
     }
 
-    @RequestMapping(value="/{friendId}",method = RequestMethod.DELETE)
-    public ResponseEntity<Object> deleteFriend(@PathVariable(name="friendId")UUID friendId){
-        if(friendService.deleteFriend(friendId)){
-            StatusResponse statusResponse=new StatusResponse();
-            statusResponse.setSuccessMessage("Deleted successfully");
+    @RequestMapping(value=API.FRIEND_ID_PARAM_PATH,method = RequestMethod.DELETE)
+    public ResponseEntity<Object> deleteFriend(@PathVariable(name="friendId")UUID friendId,
+                                               @RequestHeader(name = "userId") String userId){
+        String ownerId=friendService.getUserIdByFriendId(friendId);
+        if(userId.equals(ownerId)) {
+            if (friendService.deleteFriend(friendId)) {
+                StatusResponse statusResponse = new StatusResponse();
+                statusResponse.setSuccessMessage(SuccessText.successfullyDeleted);
 
-            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+                return new ResponseEntity<>(statusResponse, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(ErrorText.somethingWentWrongText, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.unauthorizedText,HttpStatus.UNAUTHORIZED);
     }
 }

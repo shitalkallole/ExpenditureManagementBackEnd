@@ -12,5 +12,6 @@ public interface UserService {
     boolean deleteUser(String userId);
 
     UserInformation validateUser(CredentialDTO credentialDTO);
+    UserInformation getUserById(String userId);
     Boolean updatePassword(CredentialDTO credentialDTO);
 }

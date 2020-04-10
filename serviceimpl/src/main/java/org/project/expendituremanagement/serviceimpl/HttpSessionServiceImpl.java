@@ -85,10 +85,7 @@ public class HttpSessionServiceImpl implements HttpSessionService {
 
     @Override
     public boolean deleteHttpSession(String userId) {
-        //if(validateSession(httpSession).getSessionActiveOrNot()) {
-            hashOperations.delete(REDIS_INDEX,userId);
-            return true;
-        //}
-        //return false;
+        hashOperations.delete(REDIS_INDEX,userId);
+        return true;
     }
 }

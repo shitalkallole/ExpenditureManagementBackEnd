@@ -289,7 +289,7 @@ public class LendBorrowExpenseServiceImpl implements LendBorrowExpenseService {
     }
 
     @Override
-    public String getUserIdBy(UUID transactionId) {
+    public String getUserIdByTransactionId(UUID transactionId) {
         if(lendBorrowExpenseRepository.existsById(transactionId))
             return lendBorrowExpenseRepository.getOne(transactionId).getUserInformation().getUserId();
         return null;

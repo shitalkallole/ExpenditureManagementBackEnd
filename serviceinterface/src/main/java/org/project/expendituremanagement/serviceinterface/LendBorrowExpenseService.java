@@ -26,5 +26,5 @@ public interface LendBorrowExpenseService {
 
     List<FinalResultOfLendExpenseForCategoryDTO> calculateLendExpenseForCategory(String startDateInString, String endDateInString, UUID categoryId, String userId);
 
-    String getUserIdBy(UUID transactionId);
+    String getUserIdByTransactionId(UUID transactionId);
 }

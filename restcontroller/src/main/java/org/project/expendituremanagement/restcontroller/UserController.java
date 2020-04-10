@@ -1,5 +1,8 @@
 package org.project.expendituremanagement.restcontroller;
 
+import org.project.expendituremanagement.constants.API;
+import org.project.expendituremanagement.constants.ErrorText;
+import org.project.expendituremanagement.constants.SuccessText;
 import org.project.expendituremanagement.dto.CredentialDTO;
 import org.project.expendituremanagement.dto.StatusResponse;
 import org.project.expendituremanagement.dto.UserInformationDTO;
@@ -15,52 +18,48 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/user")
+@RequestMapping(API.USER_PATH)
 public class UserController {
     @Autowired
     private UserService userService;
     @Autowired
     private HttpSessionService httpSessionService;
 
-    private String errorText="Something went wrong";
-    private String userAlreadyExist="User Already exist";
-    private String checkCurrentPassword="Check current password";
-
-    @RequestMapping(value = "/register",method = RequestMethod.POST)
+    @RequestMapping(value = API.REGISTER_PATH,method = RequestMethod.POST)
     public ResponseEntity<Object> registerUser(@RequestBody UserInformationDTO userInformationDTO){
 
         UserInformation userInformation= userService.registerUser(userInformationDTO);
         if(userInformation!=null) {
             StatusResponse statusResponse=new StatusResponse();
-            statusResponse.setSuccessMessage("Registered Successfully. "+userInformation.getUserId()+" is your User Id");
+            statusResponse.setSuccessMessage(SuccessText.successfullyRegistered+" Your User Id is = "+userInformation.getUserId());
 
             return new ResponseEntity<>(statusResponse, HttpStatus.OK);
         }
-        return new ResponseEntity<>(userAlreadyExist, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.userAlreadyExistText, HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/{userId}",method = RequestMethod.PUT)
-    public ResponseEntity<Object> updateUser(@RequestBody UserInformationDTO userInformationDTO,@PathVariable(name="userId") String userId){
+    @RequestMapping(method = RequestMethod.PUT)
+    public ResponseEntity<Object> updateUser(@RequestBody UserInformationDTO userInformationDTO,
+                                             @RequestHeader(name="userId") String userId){
         UserInformation userInformation=userService.updateUser(userInformationDTO, userId);
         if(userInformation!=null)
             return new ResponseEntity<>(userInformation,HttpStatus.OK);
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.somethingWentWrongText,HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/{userId}",method = RequestMethod.DELETE)
-    public ResponseEntity<Object> deleteUser(@PathVariable(name="userId") String userId){
+    @RequestMapping(method = RequestMethod.DELETE)
+    public ResponseEntity<Object> deleteUser(@RequestHeader(name="userId") String userId){
         if(userService.deleteUser(userId)){
             StatusResponse statusResponse=new StatusResponse();
-            statusResponse.setSuccessMessage("User Deleted Successfully");
+            statusResponse.setSuccessMessage(SuccessText.successfullyAccountDeleted);
 
             return new ResponseEntity<>(statusResponse,HttpStatus.OK);
         }
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.somethingWentWrongText,HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/validate",method = RequestMethod.POST)
+    @RequestMapping(value=API.VALIDATE_PATH,method = RequestMethod.POST)
     public ResponseEntity<Object> validateUser(@RequestBody CredentialDTO credentialDTO){
-        System.out.println("validate user called");
         UserInformation userInformation = userService.validateUser(credentialDTO);
         if(userInformation!=null) {
             UUID sessionId=httpSessionService.createHttpSession(credentialDTO.getUserId());
@@ -71,19 +70,22 @@ public class UserController {
 
             return new ResponseEntity<>(userInformation,responseHeaders,HttpStatus.OK);
         }
-        return new ResponseEntity<>("Check user id and password and try again later",HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.invalidSignInText,HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/updatecredential",method = RequestMethod.PUT)
-    public ResponseEntity<Object> updatePassword(@RequestBody CredentialDTO credentialDTO){
+    @RequestMapping(value=API.UPDATE_CREDENTIAL,method = RequestMethod.PUT)
+    public ResponseEntity<Object> updatePassword(@RequestBody CredentialDTO credentialDTO,
+                                                 @RequestHeader(name="userId") String userId){
+
+        credentialDTO.setUserId(userId);
         if(userService.updatePassword(credentialDTO))
         {
             StatusResponse statusResponse=new StatusResponse();
-            statusResponse.setSuccessMessage("updated Password successfully");
+            statusResponse.setSuccessMessage(SuccessText.successfullyPasswordUpdated);
 
             return new ResponseEntity<>(statusResponse,HttpStatus.OK);
         }
-        return new ResponseEntity<>(checkCurrentPassword,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.checkCurrentPasswordText,HttpStatus.BAD_REQUEST);
     }
 
 }

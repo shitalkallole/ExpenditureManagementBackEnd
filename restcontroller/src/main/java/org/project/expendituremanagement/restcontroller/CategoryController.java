@@ -1,5 +1,8 @@
 package org.project.expendituremanagement.restcontroller;
 
+import org.project.expendituremanagement.constants.API;
+import org.project.expendituremanagement.constants.ErrorText;
+import org.project.expendituremanagement.constants.SuccessText;
 import org.project.expendituremanagement.dto.CategoryDTO;
 import org.project.expendituremanagement.dto.StatusResponse;
 import org.project.expendituremanagement.entity.Category;
@@ -13,51 +16,59 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/category")
+@RequestMapping(API.CATEGORY_PATH)
 public class CategoryController {
 
     @Autowired
     private CategoryService categoryService;
-    private String errorText="something wrong went";
 
-    @RequestMapping(value ="/{userId}",method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.POST)
     public ResponseEntity<Object> createCategory(@RequestBody CategoryDTO categoryDTO,
-                                   @PathVariable(name = "userId") String userId)
+                                                 @RequestHeader(name = "userId") String userId)
     {
         Category response=categoryService.createCategory(categoryDTO,userId);
         if(response!=null)
             return new ResponseEntity<>(response,HttpStatus.OK);
-        return new ResponseEntity<>(errorText, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.somethingWentWrongText, HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value="/{userId}",method = RequestMethod.GET)
-    public ResponseEntity<Object> getCategories(@PathVariable(name="userId") String userId){
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<Object> getCategories(@RequestHeader(name="userId") String userId){
         List<Category> response=categoryService.getCategories(userId);
         if(response!=null)
             return new ResponseEntity<>(response,HttpStatus.OK);
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.somethingWentWrongText,HttpStatus.BAD_REQUEST);
     }
 
-    @RequestMapping(value = "/{categoryId}",method = RequestMethod.PUT)
+    @RequestMapping(value = API.CATEGORY_ID_PARAM_PATH,method = RequestMethod.PUT)
     public ResponseEntity<Object> updateCategory(@RequestBody CategoryDTO categoryDTO,
-                                   @PathVariable(name="categoryId") UUID categoryId){
-        System.out.println("user:"+categoryService.getUserIdByCategoryId(categoryId));
-        Category response=categoryService.updateCategory(categoryDTO, categoryId);
-        if(response!=null)
-            return new ResponseEntity<>(response,HttpStatus.OK);
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+                                                 @PathVariable(name="categoryId") UUID categoryId,
+                                                 @RequestHeader(name = "userId") String userId){
+        String ownerId=categoryService.getUserIdByCategoryId(categoryId);
+        if(userId.equals(ownerId)) {
+            Category response = categoryService.updateCategory(categoryDTO, categoryId);
+            if (response != null)
+                return new ResponseEntity<>(response, HttpStatus.OK);
+            return new ResponseEntity<>(ErrorText.somethingWentWrongText, HttpStatus.BAD_REQUEST);
+        }
+        return new ResponseEntity<>(ErrorText.unauthorizedText,HttpStatus.UNAUTHORIZED);
 
     }
 
-    @RequestMapping (value = "/{categoryId}",method = RequestMethod.DELETE)
-    public ResponseEntity<Object> deleteCategory(@PathVariable(name="categoryId")UUID categoryId)
+    @RequestMapping (value = API.CATEGORY_ID_PARAM_PATH,method = RequestMethod.DELETE)
+    public ResponseEntity<Object> deleteCategory(@PathVariable(name="categoryId")UUID categoryId,
+                                                 @RequestHeader(name = "userId") String userId)
     {
-        if(categoryService.deleteCategory(categoryId)){
-            StatusResponse statusResponse=new StatusResponse();
-            statusResponse.setSuccessMessage("Deleted Successfully");
+        String ownerId=categoryService.getUserIdByCategoryId(categoryId);
+        if(userId.equals(ownerId)) {
+            if (categoryService.deleteCategory(categoryId)) {
+                StatusResponse statusResponse = new StatusResponse();
+                statusResponse.setSuccessMessage(SuccessText.successfullyDeleted);
 
-            return new ResponseEntity<>(statusResponse,HttpStatus.OK);
+                return new ResponseEntity<>(statusResponse, HttpStatus.OK);
+            }
+            return new ResponseEntity<>(ErrorText.somethingWentWrongText, HttpStatus.BAD_REQUEST);
         }
-        return new ResponseEntity<>(errorText,HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(ErrorText.unauthorizedText,HttpStatus.UNAUTHORIZED);
     }
 }
